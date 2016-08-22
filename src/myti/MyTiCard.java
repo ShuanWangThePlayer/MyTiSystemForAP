@@ -1,5 +1,6 @@
 package myti;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MyTiCard {
@@ -14,6 +15,7 @@ public class MyTiCard {
 	
 	private double credit;
 	private String id;
+	private ArrayList<TravelPass> tp = new ArrayList<TravelPass>();
 	Scanner scan = new Scanner(System.in);
 	public MyTiCard(String id){
 		this.id = id;
@@ -23,6 +25,10 @@ public class MyTiCard {
 	public void setCredit(double credit) {
 		this.credit = credit;
 	}
+	
+	public void popup(double amount) {
+		this.credit += amount;
+	}
 
 	public String getId(){
 		return id;
@@ -30,5 +36,12 @@ public class MyTiCard {
 	
 	public double getCredit() {
 		return credit;
+	}
+	
+	public ArrayList<TravelPass> getTravelPass() throws MyException{
+		if (tp.size() <= this.MAX_PURCHASES)
+		return tp;
+		else 
+			throw new MyException("Your max purchases are 10.");
 	}
 }
