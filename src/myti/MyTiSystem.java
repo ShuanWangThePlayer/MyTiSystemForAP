@@ -22,13 +22,13 @@ public class MyTiSystem {
 	static ArrayList<User> users = new ArrayList<User>();
 	static ArrayList<Station> stations = new ArrayList<Station>();
 	static ArrayList<MyTiCard> cards = new ArrayList<MyTiCard>();
-	private User user = null;
+	private static User user = null;
 	/**
 	 * main program: this contains the main menu loop
 	 */
-	public static void main(String[] args) throws MyException{
-		MyTiCard c = new MyTiCard("lc");
-		users.add(new User("Lawrence Cavedon","lawrence.cavedon@rmit.edu.au",c));
+	public static void main(String[] args) throws MyException,InputMismatchException{
+//		MyTiCard c = new MyTiCard("lc");
+		users.add(new User("Lawrence Cavedon","lawrence.cavedon@rmit.edu.au",new MyTiCard("lc")));
 		// CODE HERE:
 		// create a collection of the MyTi passes available to the system
 		// for this assignment, you may hard-code a number of passes and their ids
@@ -41,10 +41,26 @@ public class MyTiSystem {
 		stations.add(new Station("Lilydale","2"));
 		stations.add(new Station("Epping","2"));
 		// main menu loop: print menu, then do something depending on selection
-		int option;
+		int option = 0;
 		do {
+			boolean valid = true;
 			printMainMenu();
-			option = input.nextInt();
+//			option = input.nextInt();
+			while(valid){
+				if (input.hasNextInt())
+					option = input.nextInt();
+				else {
+					input.next();
+					System.out.println("Invalid input format. Please try again.");
+					System.out.println("\nPress enter to continue...");
+					input.nextLine();
+					input.nextLine();
+					printMainMenu();
+					continue;
+				}
+				valid = false;
+			}
+			
 			System.out.println();
 			
 			// perform correct action, depending on selection
@@ -54,6 +70,10 @@ public class MyTiSystem {
 			case 2: recharge();
 				break;
 			case 3: showCredit();
+				break;
+			case 4: purchaseJourney();
+				break;
+			case 5: printJourney();
 				break;
 			case 6: showStations();
 				break;
@@ -65,9 +85,7 @@ public class MyTiSystem {
 				System.out.println("Invalid option!");
 			}
 			
-		} while (option != 0);
-		
-		// finishing processing ... close the input stream
+		} while (option != 0);// finishing processing ... close the input stream
 		input.close();
 	}
 	
@@ -105,9 +123,11 @@ public class MyTiSystem {
 		}
 		if (myticard == null) {
 			System.out.println("No MyTi Card matching that id was found ...");
+			System.out.println("\nPress enter to continue...");
+			input.nextLine();
+			input.nextLine();
 			return;
 		}
-		
 		// ... else we found a matching MyTi card: continue with purchasing Travel Pass
 		// print time options
 		boolean valid = false;
@@ -157,10 +177,7 @@ public class MyTiSystem {
 		System.out.println("Your selection: ");
 		String zones = input.next();
 		if (zones.equals("c")) return;    // cancel
-		
-		System.out.println();
-		
-		// first check if valid options were selected
+		System.out.println();	// first check if valid options were selected
 		if ((!length.equals("a") && !length.equals("b"))
 				|| (!zones.equals("a") && !zones.equals("b"))) {
 			System.out.println("You have selected an illegal option. Please try again.");
@@ -199,7 +216,10 @@ public class MyTiSystem {
 			} catch (MyException e) {
 				System.out.println(e.getMessage());
 			}
-
+			System.out.println("Your current credit is: $" + myticard.getCredit());
+			System.out.println("\nPress enter to continue...");
+			input.nextLine();
+			input.nextLine();
 		}
 	}
 	
@@ -219,6 +239,9 @@ public class MyTiSystem {
 		}
 		if (myticard == null) {
 			System.out.println("No MyTi Card matching that id was found ...");
+			System.out.println("\nPress enter to continue...");
+			input.nextLine();
+			input.nextLine();
 			return;
 		}
 		boolean valid = false;
@@ -248,6 +271,8 @@ public class MyTiSystem {
 				System.out.println(e.getMessage());
 				}		
 		}while(!valid);
+		System.out.println("\nPress enter to continue...");
+		input.nextLine();
 		input.nextLine();
 	}
 
@@ -272,6 +297,59 @@ public class MyTiSystem {
 		// CODE HERE: Display credit for that MyTiCard
 		if (myticard != null) {
 			System.out.println("Your current credit is: $" + myticard.getCredit());
+		}
+	}
+	
+	static void purchaseJourney() throws MyException{
+		System.out.println();
+		System.out.println("What is the id of the MyTi pass:");
+		String id = input.next();
+		MyTiCard myticard = null;
+		for (int i=0; i<users.size(); i++){
+			if (users.get(i).getId().compareTo(id) == 0){
+				myticard = users.get(i).getCard();
+			}
+		}
+		if (myticard == null) {
+			System.out.println("No MyTi Card matching that id was found ...");
+			System.out.println("\nPress enter to continue...");
+			input.nextLine();
+			input.nextLine();
+			return;
+		}
+		boolean test = false;
+		do{
+			try{
+				System.out.print("Please enter your journey day: ");
+				String day = input.next();
+				System.out.print("Please enter your journey start time: ");
+				int time = input.nextInt();
+				for (int i=0; i<myticard.getTravelPass().size(); i++){
+					if (day.equals(myticard.getTravelPass().get(i).getDay())){
+						myticard.getTravelPass().get(i).getJourney().add(new Journey(day,time));
+						test = true;
+					}
+				}
+			}catch (MyException e) {
+				System.out.println(e.getMessage());
+				return;
+			}
+		}while(!test);
+	}
+	
+	/*
+	 *  Display all journeys made by all MyTi cards
+	 */
+	static void printJourney() throws MyException {
+		System.out.println("\tUserID\tJourneyDay\tStartTime\tStartStation");
+		for (int i=0; i<users.size(); i++) {
+//			for(int j=0; j<users.get(i).getCard().getTravelPass().size(); j++)
+//				for(int k=0; k<users.get(i).getCard().getTravelPass().get(j).getJourney().size(); k++)
+//				System.out.println("\t" + users.get(i).getId() + "\t" + users.get(i).getCard().getTravelPass().get(j).getJourney().get(k).getTime() + "\t");
+			user = users.get(i);
+			for(int j=0; j<user.getCard().getTravelPass().size(); j++) {
+				System.out.print("\t" + user.getId());user.getCard().getTravelPass().get(j).showJourney();
+			}
 		}
 	}
 	
