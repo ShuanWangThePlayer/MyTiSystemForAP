@@ -328,7 +328,8 @@ public class MyTiSystem {
 					if (day.equals(myticard.getTravelPass().get(i).getDay())){
 						myticard.getTravelPass().get(i).getJourney().add(new Journey(day,time));
 						test = true;
-					}
+					}else 
+						throw new MyException("You have no valid Travel Pass through this journey period.");
 				}
 			}catch (MyException e) {
 				System.out.println(e.getMessage());
@@ -363,5 +364,15 @@ public class MyTiSystem {
 		System.out.println("\nPress enter to continue...");
 		input.nextLine();
 		input.nextLine();
+	}
+	
+	/*
+	 * Check current credit is valid or not to purchase
+	 */
+	static boolean checkCredit(MyTiCard myticard, double amt) {
+		if (myticard.getCredit() >= amt)
+			return true;
+		else
+			return false;
 	}
 }

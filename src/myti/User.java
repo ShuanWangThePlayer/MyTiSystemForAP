@@ -1,11 +1,15 @@
 package myti;
 
+/*
+ * Store the users' basic details
+ * @author Xiangyu Wang s3556596
+ * last modified on 15/08/2016
+ */
 public class User {
 	private String name;
 	private String email;
 	private String id;
 	private MyTiCard card;
-//	private Scanner scan = new Scanner(System.in);
 	
 	public User(String name, String email, MyTiCard card){
 		this.name = name;
