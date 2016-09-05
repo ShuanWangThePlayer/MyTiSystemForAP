@@ -160,12 +160,17 @@ public class MyTiSystem {
 				}catch (MyException e) {
 					System.out.println(e.getMessage());
 					return;
-			}
+				}
 				catch (InputMismatchException ime) {
 					System.out.println("Input format error, please try again.");
 					return;
 				}
-			myticard.getTravelPass().add(new TravelPass(day,time));
+				if (length.compareTo("a")==0){
+					myticard.getTravelPass().add(new TravelPass(day,time,"2h"));
+				}else if (length.compareTo("b")==0){
+					myticard.getTravelPass().add(new TravelPass(day,time,"ad"));
+				}
+//			myticard.getTravelPass().add(new TravelPass(day,time));
 			valid = true;
 			}while(!valid);
 		} while (!valid);
@@ -298,6 +303,9 @@ public class MyTiSystem {
 		if (myticard != null) {
 			System.out.println("Your current credit is: $" + myticard.getCredit());
 		}
+		System.out.println("\nPress enter to continue...");
+		input.nextLine();
+		input.nextLine();
 	}
 	
 	static void purchaseJourney() throws MyException{
@@ -326,16 +334,28 @@ public class MyTiSystem {
 				int time = input.nextInt();
 				for (int i=0; i<myticard.getTravelPass().size(); i++){
 					if (day.equals(myticard.getTravelPass().get(i).getDay())){
-						myticard.getTravelPass().get(i).getJourney().add(new Journey(day,time));
-						test = true;
+						if ((myticard.getTravelPass().get(i).getType().compareTo("2h")==0) && (myticard.getTravelPass().get(i).getTime()+200 > time)){
+							myticard.getTravelPass().get(i).getJourney().add(new Journey(day,time));
+							test = true;
+						}else if (myticard.getTravelPass().get(i).getType().compareTo("ad")==0){
+							myticard.getTravelPass().get(i).getJourney().add(new Journey(day,time));
+							test = true;
+						}else 
+							throw new MyException("Invalid journey start time, please check your current travel pass.");
 					}else 
 						throw new MyException("You have no valid Travel Pass through this journey period.");
 				}
 			}catch (MyException e) {
 				System.out.println(e.getMessage());
+				System.out.println("\nPress enter to continue...");
+				input.nextLine();
+				input.nextLine();
 				return;
 			}
 		}while(!test);
+		System.out.println("\nPress enter to continue...");
+		input.nextLine();
+		input.nextLine();
 	}
 	
 	/*
@@ -349,9 +369,13 @@ public class MyTiSystem {
 //				System.out.println("\t" + users.get(i).getId() + "\t" + users.get(i).getCard().getTravelPass().get(j).getJourney().get(k).getTime() + "\t");
 			user = users.get(i);
 			for(int j=0; j<user.getCard().getTravelPass().size(); j++) {
-				System.out.print("\t" + user.getId());user.getCard().getTravelPass().get(j).showJourney();
+				System.out.print("\t" + user.getId());
+				user.getCard().getTravelPass().get(j).showJourney();
 			}
 		}
+		System.out.println("\nPress enter to continue...");
+		input.nextLine();
+		input.nextLine();
 	}
 	
 	/*
