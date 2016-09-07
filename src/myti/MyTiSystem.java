@@ -15,6 +15,12 @@ import java.util.*;
  * @author lcavedon
  *
  */
+
+/*
+ * Main codes here, run the system
+ * @author Xiangyu Wang s3556596
+ * Last modified 08/09/2016
+ */
 public class MyTiSystem {
 	// create a new Scanner from standard input
 	static Scanner input = new Scanner(System.in);
@@ -27,11 +33,10 @@ public class MyTiSystem {
 	 * main program: this contains the main menu loop
 	 */
 	public static void main(String[] args) throws MyException,InputMismatchException{
-//		MyTiCard c = new MyTiCard("lc");
-		users.add(new User("Lawrence Cavedon","lawrence.cavedon@rmit.edu.au",new MyTiCard("lc")));
 		// CODE HERE:
 		// create a collection of the MyTi passes available to the system
 		// for this assignment, you may hard-code a number of passes and their ids
+		users.add(new User("Lawrence Cavedon","lawrence.cavedon@rmit.edu.au",new MyTiCard("lc")));
 		// CODE HERE:
 		// create a collection of stations for the system
 		// for this assignment, you may hard-code a number of stations and their details
@@ -43,26 +48,27 @@ public class MyTiSystem {
 		// main menu loop: print menu, then do something depending on selection
 		int option = 0;
 		do {
-			boolean valid = true;
+			boolean valid = false;
 			printMainMenu();
-//			option = input.nextInt();
-			while(valid){
-				if (input.hasNextInt())
+			do{
+				try {
 					option = input.nextInt();
-				else {
-					input.next();
-					System.out.println("Invalid input format. Please try again.");
-					System.out.println("\nPress enter to continue...");
-					input.nextLine();
+					if (option > 7 || option < 0) {
+						throw new MyException("Please choose 0 to 7");
+					}
+					else if (option >= 0 && option < 8){
+						valid = true;
+					}
+				}catch (MyException me) {
+					System.out.println(me.getMessage());
+					printMainMenu();
+				}catch (InputMismatchException ime) {
+					System.out.println("Invalid input.");
 					input.nextLine();
 					printMainMenu();
-					continue;
 				}
-				valid = false;
-			}
-			
+			}while(!valid);
 			System.out.println();
-			
 			// perform correct action, depending on selection
 			switch (option) {
 			case 1: purchasePass();
@@ -150,28 +156,35 @@ public class MyTiSystem {
 				return;
 			}
 			do{ 
-				System.out.print("Day of purchase (use abbr. mon/tue etc.): ");
-				String day = input.next();
-				System.out.print("Time of purchase: ");
-				int time = input.nextInt();
 				try{
-					if ((!day.equals("mon") && !day.equals("tue") && !day.equals("wed") && !day.equals("thu") && !day.equals("fri") && !day.equals("sat") && !day.equals("sun")) || (((time > 2400 || time < 1000) && time == 0) || time%100 >59))
-						throw new MyException("Invalid input, please try again.");
+					System.out.print("Day of purchase (use abbr. mon/tue etc.): ");
+					String day = input.next();
+					System.out.print("Time of purchase: ");
+					int time = input.nextInt();
+					if ((!day.equals("mon") && !day.equals("tue") && !day.equals("wed") && !day.equals("thu") && !day.equals("fri") && !day.equals("sat") && !day.equals("sun")) || (time > 2400 || time%100 >59))
+						throw new MyException("Invalid day or time input, please try again.");
+					else if (length.compareTo("a")==0){
+						myticard.getTravelPass().add(new TravelPass(day,time,"2h"));
+						valid = true;
+					}else if (length.compareTo("b")==0){
+						myticard.getTravelPass().add(new TravelPass(day,time,"ad"));
+						valid = true;
+					}
 				}catch (MyException e) {
 					System.out.println(e.getMessage());
-					return;
 				}
 				catch (InputMismatchException ime) {
 					System.out.println("Input format error, please try again.");
+					input.nextLine();
 					return;
 				}
-				if (length.compareTo("a")==0){
-					myticard.getTravelPass().add(new TravelPass(day,time,"2h"));
-				}else if (length.compareTo("b")==0){
-					myticard.getTravelPass().add(new TravelPass(day,time,"ad"));
-				}
+//				else if (length.compareTo("a")==0){
+//					myticard.getTravelPass().add(new TravelPass(day,time,"2h"));
+//				}else if (length.compareTo("b")==0){
+//					myticard.getTravelPass().add(new TravelPass(day,time,"ad"));
+//				}
 //			myticard.getTravelPass().add(new TravelPass(day,time));
-			valid = true;
+//			valid = true;
 			}while(!valid);
 		} while (!valid);
 		System.out.println();
@@ -231,7 +244,7 @@ public class MyTiSystem {
 	/*
 	 * Recharge a MyTi card
 	 */
-	static void recharge() throws MyException{
+	static void recharge() throws MyException,InputMismatchException{
 		// CODE HERE: Get MyTi card id from user and find matching MyTiCard 
 		System.out.println();
 		System.out.println("What is the id of the MyTi pass:");
@@ -251,12 +264,14 @@ public class MyTiSystem {
 		}
 		boolean valid = false;
 		do{
-		System.out.print("How much credit do you want to add: ");
-		// read charge amount from input Scanner
-		double amount = input.nextDouble();
+//		System.out.print("How much credit do you want to add: ");
+//		// read charge amount from input Scanner
+//		double amount = input.nextDouble();
 		// CODE HERE: add that credit to the MyTiCard 
 		// - check that it does not go above max amount (raise Exception if it does)
 			try {
+				System.out.print("How much credit do you want to add: ");
+				double amount = input.nextDouble();
 				if (amount <= 0) {
 					throw new MyException("Charging amount must be greater than 0.");
 				}
@@ -274,7 +289,11 @@ public class MyTiSystem {
 				}
 			} catch (MyException e){
 				System.out.println(e.getMessage());
-				}		
+				}
+			catch (InputMismatchException ime){
+				System.out.println("\nPlease input a number between 0 to 100.");
+				input.nextLine(); //clear buffer, otherwise the block will do an infinite loop.
+			}
 		}while(!valid);
 		System.out.println("\nPress enter to continue...");
 		input.nextLine();
